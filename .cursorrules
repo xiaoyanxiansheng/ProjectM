@@ -1,0 +1,34 @@
+# ProjectM - AI 开发规则
+
+## 会话启动检查（强制）
+
+每次新会话开始任何编码任务之前，必须先阅读以下文档：
+
+1. `spec/architecture.md` - 确认技术栈（Unity 6.3 LTS, URP）
+2. `spec/coding-standards.md` - 代码规范
+3. `spec/ai-guardrails.md` - 完整的 AI 行为规则和开发流程
+
+## 技术栈速查
+
+- 引擎：Unity 6.3 LTS
+- 渲染管线：URP
+- 输入系统：新 Input System（不使用旧 UnityEngine.Input）
+- 数据驱动：CSV
+
+## 核心原则
+
+1. **不做假设**：未确认的设计不实现
+2. **先写 Spec**：新功能先整理到 spec/features/xxx.md，用户明确说"确认"后才开发
+3. **自检 + 调试日志**：开发完成后先自检，测试时用 Debug.Log
+4. **功能确认后**：删除调试日志，提交 Git
+
+## 禁止事项
+
+- 禁止预设游戏玩法设计
+- 禁止假设数据表结构
+- 禁止跳过用户确认直接开发
+- 禁止使用旧 Input API
+
+## 响应语言
+
+始终使用中文回复。
