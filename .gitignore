@@ -1,0 +1,94 @@
+# ================================
+# Unity 生成文件
+# ================================
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+
+# Memory Profiler Snapshots
+[Mm]emory[Cc]aptures/
+
+# Recordings
+[Rr]ecordings/
+
+# Asset import
+/[Aa]ssets/AssetStoreTools*
+
+# ================================
+# IDE / 编辑器
+# ================================
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+
+# Rider
+.idea/
+*.sln.iml
+
+# ================================
+# 系统文件
+# ================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ================================
+# 打包产物
+# ================================
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 构建输出
+/Build/
+/Builds/
+
+# ================================
+# 临时文件
+# ================================
+*.tmp
+*.temp
+*.log
+*.bak
+*~
+
+# Crashlytics
+crashlytics-build.properties
+sysinfo.txt
+
+# ================================
+# 特殊排除
+# ================================
+# Plastic SCM (如果使用)
+ignore.conf
+*.private.0
+*.private
+
+# ================================
+# 保留 (这些需要版本控制)
+# ================================
+!/[Aa]ssets/
+!/[Pp]ackages/
+!/[Pp]roject[Ss]ettings/
+
