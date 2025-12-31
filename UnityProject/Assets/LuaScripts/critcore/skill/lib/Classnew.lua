@@ -69,9 +69,21 @@ function Classnew(classname, super)
         local instance = setmetatable({}, cls)
         instance.class = cls
 ---@diagnostic disable-next-line: undefined-field, need-check-nil
-        instance:ctor(...)
+        -- 支持两种构造函数命名：ctor 和 constructor
+        if instance.constructor then
+            instance:constructor(...)
+        elseif instance.ctor then
+            instance:ctor(...)
+        end
         return instance
     end
+
+    -- 支持直接调用类创建实例: CAttr(...) 等同于 CAttr.New(...)
+    setmetatable(cls, {
+        __call = function(c, ...)
+            return c.New(...)
+        end
+    })
 
     return cls
 end

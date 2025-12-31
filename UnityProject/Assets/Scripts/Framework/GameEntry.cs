@@ -24,6 +24,9 @@ namespace CritFramework
 
             // 注册桥接 API
             DotaApiBridge.Register(LuaManager.Instance.LuaEnv);
+            
+            // 注册实体桥接 API（Phase 3）
+            EntityBridge.Register(LuaManager.Instance.LuaEnv);
 
             Debug.Log("[GameEntry] Lua 环境准备就绪");
         }

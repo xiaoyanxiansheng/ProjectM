@@ -93,6 +93,33 @@ ProjectM/
 
 ---
 
+## 🔌 实施前置检查（强制）
+
+**在开始任何代码实施之前，AI 必须先检查 Unity MCP 连接状态。**
+
+| 检查项 | 方法 | 失败时操作 |
+|--------|------|-----------|
+| Unity MCP 连接 | `fetch_mcp_resource unity://instances` | 提示用户连接后再继续 |
+
+```
+✅ Unity MCP 已连接 → 可以开始实施
+❌ Unity MCP 未连接 → 等待用户连接后确认
+```
+
+### ⚠️ Unity MCP 连接注意事项
+
+**重要**：启用 Unity MCP 后，需要**重启 Cursor** 才能建立连接。
+
+操作流程：
+1. 打开 Unity 编辑器
+2. 确保 Unity MCP 插件已启用并运行
+3. **重启 Cursor**（关闭后重新打开）
+4. 验证连接（AI 执行 `telemetry_status` 检查）
+
+> 原因：Cursor 在启动时才会初始化 MCP 服务器连接
+
+---
+
 ## 自检内容
 
 | 检查项 | 方法 |
