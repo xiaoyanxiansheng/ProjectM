@@ -225,16 +225,8 @@ namespace CritFramework
             if (_clipCache.TryGetValue(soundName, out var cached))
                 return cached;
 
-            // 尝试多个路径
-            AudioClip clip = Resources.Load<AudioClip>($"Audio/{soundName}");
-            if (clip == null)
-            {
-                clip = Resources.Load<AudioClip>(soundName);
-            }
-            if (clip == null)
-            {
-                clip = Resources.Load<AudioClip>($"Sounds/{soundName}");
-            }
+            // 通过 ResourceService 加载
+            AudioClip clip = ResourceService.Instance.LoadSound(soundName);
 
             if (clip != null)
             {

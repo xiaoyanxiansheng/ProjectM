@@ -68,19 +68,13 @@ namespace CritFramework
             GameObject vfxObj = GetFromPool(effectPath);
             if (vfxObj == null)
             {
-                // 从 Resources 加载
-                GameObject prefab = Resources.Load<GameObject>($"Effects/{effectPath}");
-                if (prefab == null)
-                {
-                    // 尝试不加前缀
-                    prefab = Resources.Load<GameObject>(effectPath);
-                }
+                // 通过 ResourceService 加载
+                GameObject prefab = ResourceService.Instance.LoadEffect(effectPath);
 
                 if (prefab == null)
                 {
-                    Debug.LogWarning($"[VFXService] 特效不存在: {effectPath}，创建占位粒子");
-                    // 创建一个占位的空对象
-                    vfxObj = new GameObject($"VFX_Placeholder_{effectPath}");
+                    // 创建占位空对象（Stub 模式或资源不存在）
+                    vfxObj = new GameObject($"VFX_Stub_{effectPath}");
                 }
                 else
                 {

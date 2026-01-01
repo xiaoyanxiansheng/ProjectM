@@ -716,7 +716,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f0f33efd891d134a90d42de11d54fdf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CritFramework.GameEntry
-  startupScript: test/test_phase5
+  startupScript: test/test_stub
   autoStart: 1
 --- !u!4 &1496819141
 Transform:

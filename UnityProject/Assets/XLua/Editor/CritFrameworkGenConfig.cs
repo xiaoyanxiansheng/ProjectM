@@ -51,6 +51,11 @@ namespace CritFramework.XLuaConfig
             typeof(CritFramework.AudioService),
             typeof(CritFramework.AnimatorService),
             typeof(CritFramework.LuaManager),
+            typeof(CritFramework.ResourceService),
+            typeof(CritFramework.CombatService),
+            
+            // Crit Framework Stub 系统
+            typeof(CritFramework.StubConfig),
             
             // Crit Framework 数据类型
             typeof(CritFramework.EntityData),

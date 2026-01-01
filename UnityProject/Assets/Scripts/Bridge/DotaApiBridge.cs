@@ -54,6 +54,11 @@ namespace CritFramework
             AudioBridge.Register(luaEnv);
             AnimationBridge.Register(luaEnv);
 
+            // Stub 系统: 战斗、网络、常量
+            CombatBridge.Register(luaEnv);
+            NetworkBridge.Register(luaEnv);
+            DotaConstantsBridge.Register(luaEnv);
+
             Debug.Log("[DotaApiBridge] API 桥接注册完成");
         }
 
