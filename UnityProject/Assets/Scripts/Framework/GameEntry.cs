@@ -22,11 +22,8 @@ namespace CritFramework
             // 初始化 LuaManager
             LuaManager.Instance.Init();
 
-            // 注册桥接 API
+            // 注册桥接 API（DotaApiBridge 内部会调用 EntityBridge、ParticleBridge 等）
             DotaApiBridge.Register(LuaManager.Instance.LuaEnv);
-            
-            // 注册实体桥接 API（Phase 3）
-            EntityBridge.Register(LuaManager.Instance.LuaEnv);
 
             Debug.Log("[GameEntry] Lua 环境准备就绪");
         }

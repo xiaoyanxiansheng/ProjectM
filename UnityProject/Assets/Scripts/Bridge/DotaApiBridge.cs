@@ -45,6 +45,15 @@ namespace CritFramework
             // ========== 重写 print 函数 ==========
             RegisterPrint(luaEnv);
 
+            // ========== 注册扩展桥接层 ==========
+            // Phase 3: 实体桥接
+            EntityBridge.Register(luaEnv);
+
+            // Phase 5: 表现层桥接
+            ParticleBridge.Register(luaEnv);
+            AudioBridge.Register(luaEnv);
+            AnimationBridge.Register(luaEnv);
+
             Debug.Log("[DotaApiBridge] API 桥接注册完成");
         }
 

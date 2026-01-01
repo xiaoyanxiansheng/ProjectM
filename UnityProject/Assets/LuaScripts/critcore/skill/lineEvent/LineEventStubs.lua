@@ -68,40 +68,111 @@ function LineEventCanBreakSkill:CanBreakSkill()
     return true
 end
 
--- LineEventSound 简单实现
+-- LineEventSound 实现（调用 C# 桥接）
 function LineEventSound:OnInvoke()
     local soundId = self._config[3]
-    -- Phase 5: 调用 C# 播放音效
-    DebugSKillLog(DebugSKillLogLayer.All, "[Sound] Play:", soundId)
+    local doSkillData = self:GetDoSkillData()
+    
+    if soundId and doSkillData then
+        -- 通过 AudioBridge 播放音效
+        EmitSoundOn(soundId, doSkillData.CasterInsId)
+        DebugSKillLog(DebugSKillLogLayer.All, "[Sound] Play:", soundId)
+    end
 end
 
--- LineEventAnimation 简单实现
+function LineEventSound:OnEnd()
+    local soundId = self._config[3]
+    local doSkillData = self:GetDoSkillData()
+    
+    if soundId and doSkillData then
+        StopSoundOn(soundId, doSkillData.CasterInsId)
+    end
+end
+
+-- LineEventAnimation 实现（调用 C# 桥接）
 function LineEventAnimation:OnInvoke()
     local animName = self._config[3]
-    -- Phase 5: 调用 C# 播放动画
-    DebugSKillLog(DebugSKillLogLayer.All, "[Animation] Play:", animName)
+    local animRate = tonumber(self._config[4]) or 1.0
+    local doSkillData = self:GetDoSkillData()
+    
+    if animName and doSkillData then
+        -- 通过 AnimationBridge 播放动画
+        PlayAnimation(doSkillData.CasterInsId, animName, animRate)
+        DebugSKillLog(DebugSKillLogLayer.All, "[Animation] Play:", animName, "Rate:", animRate)
+    end
 end
 
--- LineEventParticle 简单实现
+function LineEventAnimation:OnEnd()
+    local doSkillData = self:GetDoSkillData()
+    if doSkillData then
+        -- 过渡回 Idle
+        PlayAnimation(doSkillData.CasterInsId, "Idle", 1.0)
+    end
+end
+
+-- LineEventParticle 实现（调用 C# 桥接）
 function LineEventParticle:OnInvoke()
     local particlePath = self._config[3]
-    -- Phase 5: 调用 C# 创建粒子
-    DebugSKillLog(DebugSKillLogLayer.All, "[Particle] Create:", particlePath)
+    local attachType = tonumber(self._config[4]) or PATTACH_ABSORIGIN_FOLLOW
+    local doSkillData = self:GetDoSkillData()
+    
+    if particlePath and doSkillData then
+        -- 通过 ParticleManager 创建粒子
+        local particleId = ParticleManager:CreateParticle(particlePath, attachType, doSkillData.CasterInsId)
+        self._particleId = particleId
+        DebugSKillLog(DebugSKillLogLayer.All, "[Particle] Create:", particlePath, "Id:", particleId)
+    end
 end
 
--- LineEventBuff 简单实现
+function LineEventParticle:OnEnd()
+    if self._particleId then
+        ParticleManager:DestroyParticle(self._particleId, false)
+        self._particleId = nil
+    end
+end
+
+-- LineEventBuff 实现
 function LineEventBuff:OnInvoke()
     local buffId = tonumber(self._config[3])
     local buffLevel = tonumber(self._config[4]) or 1
     local doSkillData = self:GetDoSkillData()
     
-    if BuffManagerInstance and buffId then
+    if BuffManagerInstance and buffId and doSkillData then
         local doBuffData = DoBuffData.New()
         doBuffData.EntityId = doSkillData.TargetInsId or doSkillData.CasterInsId
         doBuffData.BuffId = buffId
         doBuffData.BuffLevel = buffLevel
+        doBuffData.CasterInsId = doSkillData.CasterInsId
         BuffManagerInstance:AddBuff(doBuffData)
+        DebugSKillLog(DebugSKillLogLayer.All, "[Buff] Add:", buffId, "Level:", buffLevel)
     end
 end
 
-print("[Phase 4] LineEventStubs.lua 加载完成")
+-- LineEventParticleNew 实现（与 LineEventParticle 类似但支持更多参数）
+function LineEventParticleNew:OnInvoke()
+    local particlePath = self._config[3]
+    local attachType = tonumber(self._config[4]) or PATTACH_ABSORIGIN_FOLLOW
+    local doSkillData = self:GetDoSkillData()
+    
+    if particlePath and doSkillData then
+        local particleId = ParticleManager:CreateParticle(particlePath, attachType, doSkillData.CasterInsId)
+        self._particleId = particleId
+        
+        -- 设置控制点（如果配置了位置）
+        local position = self:GetStartPosition()
+        if position then
+            ParticleManager:SetParticleControl(particleId, 0, position)
+        end
+        
+        DebugSKillLog(DebugSKillLogLayer.All, "[ParticleNew] Create:", particlePath, "Id:", particleId)
+    end
+end
+
+function LineEventParticleNew:OnEnd()
+    if self._particleId then
+        ParticleManager:DestroyParticle(self._particleId, false)
+        self._particleId = nil
+    end
+end
+
+print("[Phase 5] LineEventStubs.lua 加载完成（C# 桥接版）")
