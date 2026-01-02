@@ -2,6 +2,10 @@
 --[=[
     配置数据类
 ]=]
+
+-- 加载 table 扩展
+require("critcore.tool.table")
+
 ConfData = {
     _system_conf = nil,
 
@@ -136,10 +140,22 @@ end
 
 
 --[================[返回游戏全局配置]================]
----@param key string Key，当Key不存在时抛出错误
+---@param key string Key，当Key不存在时返回nil
 ---@return any
 function ConfData:GetGameConfig(key)
-    local line = self:CheckAndGetLine(self:GetSystemConfig('GameConfigTableName'), key)
+    -- 获取配置表名称
+    local tableName = self:GetSystemConfig('GameConfigTableName')
+    if not tableName then
+        -- print("[ConfData] GameConfigTableName 未配置，跳过 " .. key)
+        return nil
+    end
+    
+    -- 尝试获取配置行（不报错）
+    local line = self:GetLine(tableName, key)
+    if not line then
+        return nil
+    end
+    
     if line.Value then
         return line.Value
     end
@@ -163,8 +179,17 @@ end
 ---@param key string Key
 ---@return any
 function ConfData:GetSystemConfig(key)
+    -- Unity 版本使用本地默认配置，不依赖 app.config.config
     if not self._system_conf then
-        self._system_conf = require("app.config.config")
+        self._system_conf = {
+            -- 配置表相关
+            GameConfigTableName = "GameConfig",
+            
+            -- 技能系统相关
+            SkillDefaultSound = nil,  -- 禁用默认音效
+            
+            -- 其他配置可以按需添加
+        }
     end
     return self._system_conf[key]
 end

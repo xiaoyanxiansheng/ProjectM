@@ -59,6 +59,11 @@ namespace CritFramework.XLuaConfig
             
             // Crit Framework 数据类型
             typeof(CritFramework.EntityData),
+            
+            // Phase 7: 流程相关
+            typeof(CritFramework.SaveService),
+            typeof(CritFramework.SimpleUIService),
+            typeof(CritFramework.GameFlowBridge),
         };
 
         /// <summary>

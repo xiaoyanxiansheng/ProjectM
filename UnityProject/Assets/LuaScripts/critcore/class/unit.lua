@@ -66,21 +66,29 @@ function CUnitBase:constructor(id, position, die_callback, heroid, player, isspe
         self.__Type = EnumUnitType.Hero
     end
 
-    -- 读取配置表
-    local success, conf = pcall(function()
-        return ConfData:CheckAndGetLine("Unit", id)
+    -- 读取配置表（使用安全获取，不抛出错误）
+    local conf = nil
+    local success = pcall(function()
+        if ConfData and ConfData.GetLine then
+            conf = ConfData:GetLine("Unit", id)
+        end
     end)
-    if success and conf then
+    
+    if conf then
         self.__Conf = conf
     else
-        -- 创建默认配置
+        -- 创建默认配置（用于测试或配置缺失时）
         self.__Conf = {
             Camp = EnumUnitCamp.Neutrality,
             MainAttr = 1,
-            BaseAttrs = {},
+            -- 使用动态 HP 属性 ID（CONST_HP_MAX_ATTR_ID 由 Fight 初始化）
+            BaseAttrs = {{CONST_HP_MAX_ATTR_ID or 21, 100}, {55, 100}},  -- 默认 HP/MP
             ModelAttrs = {},
         }
-        print("[Warning] 单位配置不存在: " .. id .. "，使用默认配置")
+        -- 仅在非测试单位时输出警告
+        if id < 9000 then
+            print("[Warning] 单位配置不存在: " .. id .. "，使用默认配置")
+        end
     end
 
     -- 位置
@@ -189,6 +197,13 @@ function CUnitBase:GetPosition()
 end
 
 
+--[================[返回单位的当前坐标 - Dota2 API 兼容]================]
+---@return Vector
+function CUnitBase:GetAbsOrigin()
+    return self.__Position
+end
+
+
 --[================[设置单位的当前坐标]================]
 ---@param pos Vector
 function CUnitBase:SetPosition(pos)
@@ -229,6 +244,14 @@ end
 ---@return EnumUnitCamp
 function CUnitBase:GetCamp()
     return self.__Conf.Camp or EnumUnitCamp.Neutrality
+end
+
+
+--[================[设置单位的阵营]================]
+---@param camp EnumUnitCamp 阵营
+function CUnitBase:SetCamp(camp)
+    self.__Conf.Camp = camp
+    self.__FoeCamp = nil  -- 清除缓存的敌对阵营
 end
 
 
@@ -575,10 +598,40 @@ function CUnitBase:Remove()
 end
 
 
+--[================[技能槽位管理 - Phase 9]================]
+
+-- 技能槽位表 (slot -> skillId)
+-- 在构造函数中初始化 self.__SkillSlots = {}
+
+---学习技能到指定槽位
+---@param slot number 槽位 (1-4)
+---@param skillId number 技能ID
+function CUnitBase:LearnSkill(slot, skillId)
+    self.__SkillSlots = self.__SkillSlots or {}
+    self.__SkillSlots[slot] = skillId
+    print(string.format("[CUnitBase] 学习技能: InsId=%d, 槽位=%d, 技能ID=%d", 
+        self.__Index, slot, skillId))
+end
+
+---获取指定槽位的技能ID
+---@param slot number 槽位 (1-4)
+---@return number|nil
+function CUnitBase:GetSkillBySlot(slot)
+    self.__SkillSlots = self.__SkillSlots or {}
+    return self.__SkillSlots[slot]
+end
+
+---获取所有技能槽位
+---@return table
+function CUnitBase:GetAllSkills()
+    return self.__SkillSlots or {}
+end
+
+
 --[================[占位函数 - Phase 4+ 实现]================]
 
 -- 技能相关（Phase 4）
-function CUnitBase:GetSkillLevel(skillId) return 0 end
+function CUnitBase:GetSkillLevel(skillId) return 1 end  -- 默认返回1级
 function CUnitBase:GetSkillUsingId() return nil end
 function CUnitBase:IsSkillUsing() return false end
 function CUnitBase:BreakSkill() end

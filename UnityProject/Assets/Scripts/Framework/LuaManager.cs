@@ -182,6 +182,35 @@ namespace CritFramework
         }
 
         /// <summary>
+        /// 注册 SetThink 回调函数（直接传入 LuaFunction）
+        /// </summary>
+        public void RegisterThinkCallback(string name, LuaFunction callback)
+        {
+            if (callback == null)
+            {
+                Debug.LogWarning($"[LuaManager] RegisterThinkCallback: 回调函数为 null");
+                return;
+            }
+
+            _thinkFunctions[name] = new ThinkEntry
+            {
+                Function = callback,
+                Context = null,
+                NextCallTime = 0
+            };
+
+            Debug.Log($"[LuaManager] 注册 Think 回调: {name}");
+        }
+
+        /// <summary>
+        /// 移除 Think 函数（全局别名）
+        /// </summary>
+        public void RemoveThink(string name)
+        {
+            UnregisterThink(name);
+        }
+
+        /// <summary>
         /// 每帧调用，驱动 Lua Update
         /// </summary>
         public void Tick(float deltaTime)
@@ -215,6 +244,16 @@ namespace CritFramework
                         Debug.LogError($"[LuaManager] Think 函数 {kvp.Key} 执行失败:\n{e}");
                     }
                 }
+            }
+
+            // 调用 Lua 侧的 Think 函数更新
+            try
+            {
+                _luaEnv.DoString($"if __UpdateThinkFunctions then __UpdateThinkFunctions({deltaTime}) end", "ThinkUpdate");
+            }
+            catch (Exception e)
+            {
+                // 静默处理，避免每帧报错
             }
 
             // 定期 GC

@@ -248,6 +248,18 @@ function Units:GetUnitsByLib(lib)
 end
 
 
+--[================[添加单位到库]================]
+---@param insid integer 单位实例ID
+---@param unit CUnitBase 单位对象
+---@param lib string 库名称
+function Units:AddToLib(insid, unit, lib)
+    if not lib then return end
+    self.__InsidToLib[insid] = lib
+    self.__Libs[lib] = self.__Libs[lib] or {}
+    self.__Libs[lib][insid] = unit
+end
+
+
 --[================[根据库名称判断是否还有单位]================]
 ---@param lib string
 ---@return boolean {insid:单位}

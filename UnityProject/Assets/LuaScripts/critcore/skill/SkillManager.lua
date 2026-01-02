@@ -42,11 +42,17 @@ function SkillManager:DoSkillCore(doSkillData)
     end
 
     if doSkillData.CasterInsId == 0 or doSkillData.SkillId == 0 then
+        print("[SkillManager] 技能释放失败: CasterInsId或SkillId为0")
         return nil
     end
 
     local caster = GetEntityByInsId(doSkillData.CasterInsId)
-    if not caster or not caster:IsAlive() then
+    if not caster then
+        print("[SkillManager] 技能释放失败: 找不到施法者 InsId=" .. doSkillData.CasterInsId)
+        return nil
+    end
+    if not caster:IsAlive() then
+        print("[SkillManager] 技能释放失败: 施法者已死亡 InsId=" .. doSkillData.CasterInsId)
         return nil
     end
 

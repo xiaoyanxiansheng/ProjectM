@@ -131,12 +131,14 @@ end
 
 -- 释放技能
 ---@param doSkillData DoSkillData
+---@return SkillLogic|nil
 function SkillAPI.DoSkill(doSkillData)
     doSkillData.IsManual = true
     DebugSKillLog_DoSkillData(DebugSKillLogLayer.All, "SkillAPI.DoSkill", doSkillData)
     if SkillManagerInstance then
-        SkillManagerInstance:DoSkill(doSkillData)
+        return SkillManagerInstance:DoSkill(doSkillData)
     end
+    return nil
 end
 
 -- 打断技能

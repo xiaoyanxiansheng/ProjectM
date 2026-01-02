@@ -85,6 +85,13 @@ end
 -- 定义浮点数最小精度
 math.epsilon = 1.401298e-45
 
+-- 四舍五入函数
+---@param x number 要四舍五入的数
+---@return number 四舍五入结果
+function math.round(x)
+    return math.floor(x + 0.5)
+end
+
 -- 线性插值函数
 ---@param a number 起始值
 ---@param b number 结束值
@@ -102,6 +109,113 @@ end
 ---@return number 插值结果
 function Lerp2(a, b, t)
     return a + (b - a) * t
+end
+
+-- ============ Vector 向量类（Dota2 API 兼容）============
+
+---@class Vector
+---@field x number
+---@field y number
+---@field z number
+local VectorMeta = {}
+VectorMeta.__index = VectorMeta
+
+---创建向量
+---@param x number|nil
+---@param y number|nil
+---@param z number|nil
+---@return Vector
+function Vector(x, y, z)
+    local v = setmetatable({}, VectorMeta)
+    v.x = x or 0
+    v.y = y or 0
+    v.z = z or 0
+    return v
+end
+
+---向量加法
+function VectorMeta:__add(other)
+    return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+end
+
+---向量减法
+function VectorMeta:__sub(other)
+    return Vector(self.x - other.x, self.y - other.y, self.z - other.z)
+end
+
+---向量乘法（标量）
+function VectorMeta:__mul(scalar)
+    if type(scalar) == "number" then
+        return Vector(self.x * scalar, self.y * scalar, self.z * scalar)
+    else
+        return Vector(self.x * scalar.x, self.y * scalar.y, self.z * scalar.z)
+    end
+end
+
+---向量除法（标量）
+function VectorMeta:__div(scalar)
+    return Vector(self.x / scalar, self.y / scalar, self.z / scalar)
+end
+
+---向量相等
+function VectorMeta:__eq(other)
+    return self.x == other.x and self.y == other.y and self.z == other.z
+end
+
+---向量取反
+function VectorMeta:__unm()
+    return Vector(-self.x, -self.y, -self.z)
+end
+
+---向量转字符串
+function VectorMeta:__tostring()
+    return string.format("Vector(%.2f, %.2f, %.2f)", self.x, self.y, self.z)
+end
+
+---向量长度
+---@return number
+function VectorMeta:Length()
+    return math.sqrt(self.x * self.x + self.y * self.y + self.z * self.z)
+end
+
+---向量长度平方（避免开方运算）
+---@return number
+function VectorMeta:LengthSqr()
+    return self.x * self.x + self.y * self.y + self.z * self.z
+end
+
+---2D向量长度（忽略z）
+---@return number
+function VectorMeta:Length2D()
+    return math.sqrt(self.x * self.x + self.y * self.y)
+end
+
+---归一化
+---@return Vector
+function VectorMeta:Normalized()
+    local len = self:Length()
+    if len > 0 then
+        return self / len
+    end
+    return Vector(0, 0, 0)
+end
+
+---点积
+---@param other Vector
+---@return number
+function VectorMeta:Dot(other)
+    return self.x * other.x + self.y * other.y + self.z * other.z
+end
+
+---叉积
+---@param other Vector
+---@return Vector
+function VectorMeta:Cross(other)
+    return Vector(
+        self.y * other.z - self.z * other.y,
+        self.z * other.x - self.x * other.z,
+        self.x * other.y - self.y * other.x
+    )
 end
 
 -- ============ 时间工具 ============
@@ -193,19 +307,27 @@ end
 
 -- ============ 占位函数（Phase 3+ 实现）============
 
--- 实体相关（Phase 3）
+-- 实体相关（Phase 9 实现）
 function GetEntityByInsId(insId)
-    -- print("[Warning] GetEntityByInsId 尚未实现 (Phase 3)")
+    if Units and Units.GetUnitByInsid then
+        return Units:GetUnitByInsid(insId)
+    end
     return nil
 end
 
 function EntityIdToInsId(entityId)
-    -- print("[Warning] EntityIdToInsId 尚未实现 (Phase 3)")
+    if Units and Units.GetUnitByEntityid then
+        local unit = Units:GetUnitByEntityid(entityId)
+        return unit and unit:GetInsid() or nil
+    end
     return nil
 end
 
 function GetEntityPosition(insId)
-    -- print("[Warning] GetEntityPosition 尚未实现 (Phase 3)")
+    local unit = GetEntityByInsId(insId)
+    if unit then
+        return unit:GetPosition()
+    end
     return Vector(0, 0, 0)
 end
 

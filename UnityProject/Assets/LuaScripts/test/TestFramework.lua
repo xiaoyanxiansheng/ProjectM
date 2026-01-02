@@ -21,21 +21,45 @@ end
 
 --- 注册一组测试（带 setUp 和 tearDown）
 ---@param groupName string 组名
----@param tests table 测试列表 { {name, func}, ... }
----@param setUp function 每个测试前执行
----@param tearDown function 每个测试后执行
-function TestFramework:RegisterGroup(groupName, tests, setUp, tearDown)
-    for _, test in ipairs(tests) do
-        local wrappedFunc = function()
-            if setUp then setUp() end
-            local success, err = pcall(test.func)
-            if tearDown then tearDown() end
-            if not success then error(err) end
+---@param config table 配置 { setUp, tearDown, tests = { ["name"] = func, ... } }
+function TestFramework:RegisterGroup(groupName, config)
+    local setUp = config.setUp
+    local tearDown = config.tearDown
+    local tests = config.tests or config
+    
+    -- 支持两种格式：
+    -- 1. { ["测试名"] = func, ... }
+    -- 2. { { name = "...", func = ... }, ... }
+    for nameOrIndex, funcOrTest in pairs(tests) do
+        local testName, testFunc
+        
+        if type(nameOrIndex) == "string" then
+            -- 格式1: { ["测试名"] = func }
+            testName = nameOrIndex
+            testFunc = funcOrTest
+        elseif type(funcOrTest) == "table" and funcOrTest.name then
+            -- 格式2: { { name = "...", func = ... } }
+            testName = funcOrTest.name
+            testFunc = funcOrTest.func
+        else
+            -- 跳过 setUp/tearDown 等配置项
+            goto continue
         end
-        table.insert(self.tests, { 
-            name = string.format("[%s] %s", groupName, test.name), 
-            func = wrappedFunc 
-        })
+        
+        if type(testFunc) == "function" then
+            local wrappedFunc = function()
+                if setUp then setUp() end
+                local success, err = pcall(testFunc)
+                if tearDown then tearDown() end
+                if not success then error(err) end
+            end
+            table.insert(self.tests, { 
+                name = string.format("[%s] %s", groupName, testName), 
+                func = wrappedFunc 
+            })
+        end
+        
+        ::continue::
     end
 end
 
@@ -51,11 +75,11 @@ function TestFramework:Assert(condition, message)
 end
 
 --- 断言两个值相等
----@param expected any 期望值
 ---@param actual any 实际值
+---@param expected any 期望值
 ---@param message string 失败消息
-function TestFramework:AssertEqual(expected, actual, message)
-    if expected ~= actual then
+function TestFramework:AssertEqual(actual, expected, message)
+    if actual ~= expected then
         error(string.format("%s: expected [%s], got [%s]", 
             message or "AssertEqual", tostring(expected), tostring(actual)))
     end

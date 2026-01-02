@@ -99,24 +99,28 @@ EnumFightHealParamsType = {
 --[================[初始化]================]
 function Fight:__Init()
     -- 属性ID枚举（从配置读取）
-    local function getConfig(key)
+    local function getConfig(key, default)
         local success, result = pcall(function()
             return ConfData:GetGameConfig(key)
         end)
-        return success and result or 0
+        if success and result and result ~= 0 then
+            return result
+        end
+        return default or 0
     end
     
-    CONST_HP_MAX_ATTR_ID = getConfig('AttrMaxHpId')
-    CONST_SPEED_ATTR_ID = getConfig('AttrSpeedId')
-    CONST_ATTACK_TIME_ATTR_ID = getConfig('AttrAttackTimeId')
-    CONST_ATTACK_RANGE_ATTR_ID = getConfig('AttrAttackRangeId')
-    CONST_DAY_VIEW_ATTR_ID = getConfig('AttrDayViewId')
-    CONST_NIGHT_VIEW_ATTR_ID = getConfig('AttrNightViewId')
-    CONST_VIEW_ATTR_ID = getConfig('AttrViewId')
-    CONST_RESPAWN_TIME_MINUS_ATTR_ID = getConfig('AttrRespawnTimeId')
-    CONST_SKILL_CD_TIME_MINUS_ATTR_ID = getConfig('AttrCDTimeId')
-    CONST_SKILL_LEVEL_ADD_ATTR_ID = getConfig('AttrSkillLevelId')
-    CONST_SKILL_RANGE_ADD_ATTR_ID = getConfig('AttrSkillRangeAddId')
+    -- 默认属性ID（基于项目配置）
+    CONST_HP_MAX_ATTR_ID = getConfig('AttrMaxHpId', 54)       -- 最大生命值
+    CONST_SPEED_ATTR_ID = getConfig('AttrSpeedId', 55)        -- 移动速度
+    CONST_ATTACK_TIME_ATTR_ID = getConfig('AttrAttackTimeId', 0)
+    CONST_ATTACK_RANGE_ATTR_ID = getConfig('AttrAttackRangeId', 0)
+    CONST_DAY_VIEW_ATTR_ID = getConfig('AttrDayViewId', 0)
+    CONST_NIGHT_VIEW_ATTR_ID = getConfig('AttrNightViewId', 0)
+    CONST_VIEW_ATTR_ID = getConfig('AttrViewId', 0)
+    CONST_RESPAWN_TIME_MINUS_ATTR_ID = getConfig('AttrRespawnTimeId', 0)
+    CONST_SKILL_CD_TIME_MINUS_ATTR_ID = getConfig('AttrCDTimeId', 0)
+    CONST_SKILL_LEVEL_ADD_ATTR_ID = getConfig('AttrSkillLevelId', 0)
+    CONST_SKILL_RANGE_ADD_ATTR_ID = getConfig('AttrSkillRangeAddId', 0)
 
     -- 属性ID转换
     local success, attrTable = pcall(function()
@@ -312,5 +316,8 @@ function Fight:__GetUnitSkillLevelValue(unit, skill_id, level, params, first)
     return params[index] or 0
 end
 
+
+-- 初始化 Fight 系统
+Fight:__Init()
 
 print("[Phase 3] fight.lua 加载完成")

@@ -106,6 +106,100 @@ namespace CritFramework
                     CS.CritFramework.EntityService.Instance:SetForward(entityId, fwd)
                 end
             ");
+
+            // 战斗相关 API
+            RegisterCombatApi(luaEnv);
+        }
+
+        /// <summary>
+        /// 注册战斗相关 API
+        /// </summary>
+        private static void RegisterCombatApi(LuaEnv luaEnv)
+        {
+            // SetEntityHealth(entityId, current, max)
+            luaEnv.DoString(@"
+                function SetEntityHealth(entityId, current, max)
+                    CS.CritFramework.EntityService.Instance:SetHealth(entityId, current, max)
+                end
+            ");
+
+            // ApplyEntityDamage(entityId, damage) -> isDead
+            luaEnv.DoString(@"
+                function ApplyEntityDamage(entityId, damage)
+                    return CS.CritFramework.EntityService.Instance:ApplyDamage(entityId, damage)
+                end
+            ");
+
+            // ApplyEntityHeal(entityId, amount)
+            luaEnv.DoString(@"
+                function ApplyEntityHeal(entityId, amount)
+                    CS.CritFramework.EntityService.Instance:ApplyHeal(entityId, amount)
+                end
+            ");
+
+            // GetEntityHealth(entityId) -> current
+            luaEnv.DoString(@"
+                function GetEntityHealth(entityId)
+                    return CS.CritFramework.EntityService.Instance:GetHealth(entityId)
+                end
+            ");
+
+            // GetEntityMaxHealth(entityId) -> max
+            luaEnv.DoString(@"
+                function GetEntityMaxHealth(entityId)
+                    return CS.CritFramework.EntityService.Instance:GetMaxHealth(entityId)
+                end
+            ");
+
+            // GetEntityCamp(entityId) -> camp
+            luaEnv.DoString(@"
+                function GetEntityCamp(entityId)
+                    return CS.CritFramework.EntityService.Instance:GetCamp(entityId)
+                end
+            ");
+
+            // SetEntityCamp(entityId, camp)
+            luaEnv.DoString(@"
+                function SetEntityCamp(entityId, camp)
+                    CS.CritFramework.EntityService.Instance:SetCamp(entityId, camp)
+                end
+            ");
+
+            // MoveEntityTowards(entityId, targetPos, speed)
+            luaEnv.DoString(@"
+                function MoveEntityTowards(entityId, targetPos, speed)
+                    local pos = CS.UnityEngine.Vector3(targetPos.x, targetPos.y, targetPos.z)
+                    CS.CritFramework.EntityService.Instance:MoveTowards(entityId, pos, speed)
+                end
+            ");
+
+            // GetEntitiesInRange(centerPos, radius, campFilter) -> table of entityIds
+            luaEnv.DoString(@"
+                function GetEntitiesInRange(centerPos, radius, campFilter)
+                    local center = CS.UnityEngine.Vector3(centerPos.x, centerPos.y, centerPos.z)
+                    local list = CS.CritFramework.EntityService.Instance:GetEntitiesInRange(center, radius, campFilter)
+                    local result = {}
+                    for i = 0, list.Count - 1 do
+                        table.insert(result, list[i])
+                    end
+                    return result
+                end
+            ");
+
+            // GetNearestEnemy(entityId, maxRange) -> enemyEntityId or -1
+            luaEnv.DoString(@"
+                function GetNearestEnemy(entityId, maxRange)
+                    maxRange = maxRange or 9999
+                    return CS.CritFramework.EntityService.Instance:GetNearestEnemy(entityId, maxRange)
+                end
+            ");
+
+            // PlayEntityAnimation(entityId, animName, loop)
+            luaEnv.DoString(@"
+                function PlayEntityAnimation(entityId, animName, loop)
+                    CS.CritFramework.EntityService.Instance:PlayAnimation(entityId, animName, loop or false)
+                end
+            ");
         }
 
         /// <summary>

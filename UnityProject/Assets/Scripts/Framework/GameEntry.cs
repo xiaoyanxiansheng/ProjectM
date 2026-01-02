@@ -9,11 +9,11 @@ namespace CritFramework
     public class GameEntry : MonoBehaviour
     {
         [Header("启动配置")]
-        [Tooltip("启动时自动执行的 Lua 脚本")]
-        public string startupScript = "test/test_bridge";
+        [Tooltip("启动时自动执行的 Lua 脚本（留空则不执行）")]
+        public string startupScript = "";
 
         [Tooltip("是否在启动时自动执行脚本")]
-        public bool autoStart = true;
+        public bool autoStart = false;
 
         private void Awake()
         {
@@ -30,6 +30,13 @@ namespace CritFramework
 
         private void Start()
         {
+            // 显示加载界面
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.ShowPanel("Loading");
+            }
+            
+            // 如果配置了启动脚本，则执行
             if (autoStart && !string.IsNullOrEmpty(startupScript))
             {
                 Debug.Log($"[GameEntry] 执行启动脚本: {startupScript}");

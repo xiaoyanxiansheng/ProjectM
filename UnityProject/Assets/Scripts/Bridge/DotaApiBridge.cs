@@ -59,6 +59,11 @@ namespace CritFramework
             NetworkBridge.Register(luaEnv);
             DotaConstantsBridge.Register(luaEnv);
 
+            // Phase 7: 流程相关桥接
+            GameFlowBridge.Register(luaEnv);
+            SaveService.Register(luaEnv);
+            SimpleUIService.Register(luaEnv);
+
             Debug.Log("[DotaApiBridge] API 桥接注册完成");
         }
 
@@ -239,6 +244,46 @@ local GameModeEntity = {}
 function GameModeEntity:SetThink(name, context)
     -- 调用 C# 的 LuaManager.RegisterThink
     CS.CritFramework.LuaManager.Instance:RegisterThink(name, context)
+end
+
+-- 全局 SetThink 函数（Dota2 API 兼容）
+-- 使用 Lua 自己的计时系统实现
+__ThinkFunctions = __ThinkFunctions or {}
+__ThinkTimers = __ThinkTimers or {}
+
+-- SetThink(name, callback, context, delay)
+function SetThink(name, callback, context, delay)
+    if callback then
+        __ThinkFunctions[name] = callback
+        __ThinkTimers[name] = (delay or 0)
+    end
+end
+
+-- 清除 Think 函数
+function StopThink(name)
+    if name then
+        __ThinkFunctions[name] = nil
+        __ThinkTimers[name] = nil
+    end
+end
+
+-- 更新所有 Think 函数（由 C# 每帧调用）
+function __UpdateThinkFunctions(dt)
+    for name, callback in pairs(__ThinkFunctions) do
+        local timer = __ThinkTimers[name] or 0
+        timer = timer - dt
+        if timer <= 0 then
+            local result = callback()
+            -- 如果回调返回数字，设为下次调用延迟
+            if type(result) == 'number' then
+                __ThinkTimers[name] = result
+            else
+                __ThinkTimers[name] = 0  -- 每帧调用
+            end
+        else
+            __ThinkTimers[name] = timer
+        end
+    end
 end
 
 -- GameRules 占位对象
