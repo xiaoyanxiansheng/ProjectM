@@ -254,7 +254,7 @@ namespace CritFramework.Editor
                             end
                             
                             -- 简化版副本怪物
-                            local simpleAlive = dungeon:GetAliveMonsterCount and dungeon:GetAliveMonsterCount() or 0
+                            local simpleAlive = dungeon.GetAliveMonsterCount and dungeon:GetAliveMonsterCount() or 0
                             print('怪物(简化版): 存活=' .. simpleAlive)
                         else
                             print('没有副本')
